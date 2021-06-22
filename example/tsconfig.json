@@ -1,0 +1,40 @@
+{
+    "compilerOptions": {
+        // required
+        "allowSyntheticDefaultImports": true,
+        "downlevelIteration": true,
+        "noLib": true,
+        "strict": true,
+        "module": "CommonJS",
+        "target": "ESNext",
+        "moduleResolution": "Node",
+        "experimentalDecorators": true,
+        "typeRoots": [
+            "../node_modules/@rbxts"
+        ],
+        "removeComments": true,
+
+        "rootDirs": [
+            "server",
+            "client",
+            "shared",
+            "../src",
+        ],
+
+        "outDir": "build",
+        "baseUrl": ".",
+
+        "paths": {
+            "@rbxts/net": ["../src"],
+            "@rbxts/net/*": ["../src/*"]
+        },
+        "jsx": "react",
+        "jsxFactory": "Roact.createElement",
+        "plugins": [
+        ]
+    },
+    "include": [
+        "**/*",
+        "../src/**/*"
+, "../ignoreMe/MessageTemplate"    ]
+}

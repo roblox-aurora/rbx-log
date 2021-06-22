@@ -1,5 +1,5 @@
-import { LogConfiguration, LogLevel, StructuredMessage } from "Configuration";
-import Logger from "Logger";
+import { LogConfiguration, LogLevel, StructuredMessage } from "./Configuration";
+import Logger from "./Logger";
 
 namespace Log {
 	const defaultLogger = Logger.default();

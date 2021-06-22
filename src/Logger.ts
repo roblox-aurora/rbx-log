@@ -1,4 +1,4 @@
-import { LogConfiguration, LogLevel, LogSink, StructuredMessage } from "Configuration";
+import { LogConfiguration, LogLevel, LogSink, StructuredMessage } from "./Configuration";
 
 export default class Logger {
 	private sinks: ReadonlyArray<LogSink>;

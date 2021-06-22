@@ -21,5 +21,9 @@
 		"incremental": true,
 		"tsBuildInfoFile": "out/tsconfig.tsbuildinfo",
 		"declaration": true
-	}
+	},
+	"exclude": [
+		"example/**/*",
+		"out/**/*"
+	]
 }
