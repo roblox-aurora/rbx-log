@@ -1,3 +1,4 @@
+import { MessageTemplate } from "./MessageTemplate";
 import {
 	createNode,
 	DestructureMode,
@@ -8,7 +9,15 @@ import {
 } from "./MessageTemplateToken";
 
 export namespace MessageTemplateParser {
-	export function* Tokenize(messageTemplate: string): Generator<Token, void, unknown> {
+	export function Parse(message: string) {
+		const tokens = new Array<Token>();
+		for (const token of tokenize(message)) {
+			tokens.push(token);
+		}
+		return new MessageTemplate(message, tokens);
+	}
+
+	function* tokenize(messageTemplate: string): Generator<Token, void, unknown> {
 		if (messageTemplate.size() === 0) {
 			yield identity<TextToken>({ kind: TemplateTokenKind.Text, text: "" });
 			return;
@@ -48,6 +57,7 @@ export namespace MessageTemplateParser {
 				const nextChar = messageTemplate.sub(startAt + 1, startAt + 1);
 				if (nextChar === "{") {
 					results.push(char);
+					startAt++;
 				} else {
 					break;
 				}
@@ -95,7 +105,7 @@ export namespace MessageTemplateParser {
 			(c) => isValidDestructureHint(c) || (isValidNameCharacter(c) && c !== "}"),
 		);
 
-		if (index === messageTemplate.size()) {
+		if (index > messageTemplate.size()) {
 			return [index, identity<TextToken>({ kind: TemplateTokenKind.Text, text: propertyName })];
 		}
 

@@ -1,10 +1,9 @@
 -- Compiled with roblox-ts v1.0.0
 local TS = require(game:GetService("ReplicatedStorage"):WaitForChild("TS"):WaitForChild("RuntimeLib"))
 local MessageTemplateParser = TS.import(script, game:GetService("ReplicatedStorage"), "TS", "node_modules", "net", "MessageTemplateParser").MessageTemplateParser
-for _0 in MessageTemplateParser.Tokenize("Testing lol {@hi} there {Bob} {$} yeet").next do
-	if _0.done then
-		break
-	end
-	local value = _0.value
-	print(value)
-end
+local test = MessageTemplateParser.Parse("Hello, {Name}! How is your {TimeOfDay}?")
+local hour = DateTime.fromUnixTimestamp(os.time()):ToLocalTime().Hour
+print(test:Render({
+	Name = "Vorlias",
+	TimeOfDay = (hour < 6 or hour > 16) and "Night" or "Day",
+}))

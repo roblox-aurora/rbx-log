@@ -1,13 +1,31 @@
 -- Compiled with roblox-ts v1.0.0
 local TS = require(game:GetService("ReplicatedStorage"):WaitForChild("TS"):WaitForChild("RuntimeLib"))
+local MessageTemplate = TS.import(script, game:GetService("ReplicatedStorage"), "TS", "node_modules", "net", "MessageTemplate").MessageTemplate
 local _0 = TS.import(script, game:GetService("ReplicatedStorage"), "TS", "node_modules", "net", "MessageTemplateToken")
 local DestructureMode = _0.DestructureMode
 local TemplateTokenKind = _0.TemplateTokenKind
 local MessageTemplateParser = {}
 do
 	local _1 = MessageTemplateParser
+	local tokenize
+	local function Parse(message)
+		local tokens = {}
+		for _2 in tokenize(message).next do
+			if _2.done then
+				break
+			end
+			local token = _2.value
+			local _3 = tokens
+			local _4 = token
+			-- ▼ Array.push ▼
+			_3[#_3 + 1] = _4
+			-- ▲ Array.push ▲
+		end
+		return MessageTemplate.new(message, tokens)
+	end
+	_1.Parse = Parse
 	local parseText, parseProperty
-	local function Tokenize(messageTemplate)
+	function tokenize(messageTemplate)
 		return TS.generator(function()
 			if #messageTemplate == 0 then
 				local _2 = {
@@ -44,7 +62,6 @@ do
 			end
 		end)
 	end
-	_1.Tokenize = Tokenize
 	function parseText(startAt, messageTemplate)
 		local results = {}
 		repeat
@@ -64,6 +81,7 @@ do
 						-- ▼ Array.push ▼
 						_8[#_8 + 1] = _9
 						-- ▲ Array.push ▲
+						startAt += 1
 					else
 						break
 					end
@@ -122,7 +140,7 @@ do
 		end)
 		index = _2[1]
 		propertyName = _2[2]
-		if index == #messageTemplate then
+		if index > #messageTemplate then
 			local _3 = {
 				kind = TemplateTokenKind.Text,
 				text = propertyName,
