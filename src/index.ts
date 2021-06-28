@@ -1,15 +1,19 @@
-import { LogConfiguration, LogLevel, StructuredMessage } from "./Configuration";
+import { LogLevel, StructuredMessage } from "./Configuration";
 import { MessageTemplateParser } from "@rbxts/message-templates/out/MessageTemplateParser";
-import Logger from "./Logger";
-import { DestructureMode, TemplateTokenKind, Token } from "@rbxts/message-templates/out/MessageTemplateToken";
-export { LogLevel } from "./Configuration";
-const HttpService = game.GetService("HttpService");
+import { PlainTextMessageTemplateRenderer } from "@rbxts/message-templates/out/PlainTextMessageTemplateRenderer";
+import { Logger } from "./Logger";
+export { Logger } from "./Logger";
+export { LogLevel, StructuredMessage } from "./Configuration";
 
 namespace Log {
-	let defaultLogger: Logger | undefined = Logger.default();
+	let defaultLogger: Logger = Logger.default();
 
 	export function SetLogger(logger: Logger) {
 		defaultLogger = logger;
+	}
+
+	export function Default() {
+		return defaultLogger;
 	}
 
 	/**
@@ -17,67 +21,61 @@ namespace Log {
 	 * @returns The logger configuration, use `Initialize` to get the logger once configured
 	 */
 	export function Create() {
-		return new Logger().Configure();
+		return Logger.configure();
 	}
 
-	function RenderPlainText(tokens: Token[], properties: Record<string, defined>) {
-		let result = "";
-		for (const token of tokens) {
-			switch (token.kind) {
-				case TemplateTokenKind.Text:
-					result += token.text;
-					break;
-				case TemplateTokenKind.Property:
-					const prop = properties[token.propertyName];
-
-					if (token.destructureMode === DestructureMode.ToString) {
-						result += tostring(prop);
-					} else if (token.destructureMode === DestructureMode.Destructure) {
-						result += HttpService.JSONEncode(prop);
-					} else {
-						if (typeIs(prop, "Instance")) {
-							result += prop.GetFullName();
-						} else if (typeIs(prop, "table")) {
-							result += HttpService.JSONEncode(prop);
-						} else {
-							result += tostring(prop);
-						}
-					}
-			}
-		}
-		return result;
+	export interface RobloxOutputOptions {
+		/**
+		 * Whether or not to show the time
+		 *
+		 * If true, it will be formatted like:
+		 * - `19:38:23 [TAG] Message goes here`
+		 * @deprecated Both the roblox output and developer console now have this by default.
+		 */
+		ShowCurrentTime?: boolean;
+		/**
+		 * The tag format
+		 * - `short` - `DBG`, `INF`, `WRN`, `ERR`, `FTL`
+		 * - `full` - `DEBUG`, `INFO`, `WARNING`, `ERROR`, `FATAL`
+		 */
+		TagFormat?: "short" | "full";
 	}
-
-	export const RobloxOutput = () => {
+	export const RobloxOutput = (options: RobloxOutputOptions = {}) => {
+		const { ShowCurrentTime = false, TagFormat = "short" } = options;
 		return (message: StructuredMessage) => {
-			const template = MessageTemplateParser.ParseTokens(message.Template);
-			const renderedTemplate = RenderPlainText(template, message);
-			const time = DateTime.fromIsoDate(message.Timestamp)?.FormatLocalTime("LT", "en-us");
+			const template = new PlainTextMessageTemplateRenderer(MessageTemplateParser.GetTokens(message.Template));
+			const time = DateTime.fromIsoDate(message.Timestamp)?.FormatLocalTime("HH:mm:ss", "en-us");
 			let tag: string;
 			switch (message.Level) {
 				case LogLevel.Verbose:
-					tag = "VER";
+					tag = TagFormat === "short" ? "VVV" : "VERBOSE";
 					break;
 				case LogLevel.Debugging:
-					tag = "DBG";
+					tag = TagFormat === "short" ? "DBG" : "DEBUG";
 					break;
 				case LogLevel.Information:
-					tag = "INF";
+					tag = TagFormat === "short" ? "INF" : "INFO";
 					break;
 				case LogLevel.Warning:
-					tag = "WRN";
+					tag = TagFormat === "short" ? "WRN" : "WARNING";
 					break;
 				case LogLevel.Error:
-					tag = "ERR";
+					tag = TagFormat === "short" ? "ERR" : "ERROR";
 					break;
 				case LogLevel.Fatal:
-					tag = "WTF";
+					tag = TagFormat === "short" ? "FTL" : "FATAL";
 					break;
 			}
+
+			const messageRendered = template.Render(message);
+			const formattedMessage = ShowCurrentTime
+				? `${time} [${tag}] ${messageRendered}`
+				: `[${tag}] ${messageRendered}`;
+
 			if (message.Level >= LogLevel.Warning) {
-				warn(time, `[${tag}]`, renderedTemplate);
+				warn(formattedMessage);
 			} else {
-				print(time, `[${tag}]`, renderedTemplate);
+				print(formattedMessage);
 			}
 		};
 	};

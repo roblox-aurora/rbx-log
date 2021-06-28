@@ -18,16 +18,12 @@
                         "$path": "build/src"
                     }
                 }
-            },
-            "Shared": {"$path": "build/example/shared"}
+            }
         },
         "StarterPlayer": {
             "$className": "StarterPlayer",
             "StarterPlayerScripts": {
-                "$className": "StarterPlayerScripts",
-                "Client": {
-                    "$path": "build/example/client"
-                }
+                "$className": "StarterPlayerScripts"
             }
         }
     }

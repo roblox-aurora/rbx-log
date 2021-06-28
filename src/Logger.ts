@@ -1,13 +1,19 @@
+import { MessageTemplateParser } from "@rbxts/message-templates/out/MessageTemplateParser";
+import { PropertyToken, TemplateTokenKind } from "@rbxts/message-templates/out/MessageTemplateToken";
 import { LogConfiguration, LogEnricher, LogLevel, LogSink, StructuredMessage } from "./Configuration";
 
-export default class Logger {
+export class Logger {
 	private sinks: ReadonlyArray<LogSink>;
 	private enrichers: ReadonlyArray<LogEnricher>;
 
 	private minLogLevel = LogLevel.Information;
-	public constructor() {
+	private constructor() {
 		this.sinks = [];
 		this.enrichers = [];
+	}
+
+	public static configure() {
+		return new LogConfiguration(new Logger());
 	}
 
 	/** @internal */
@@ -24,13 +30,30 @@ export default class Logger {
 		this.minLogLevel = logLevel;
 	}
 
-	public Configure() {
-		return new LogConfiguration(this);
-	}
-
 	private static defaultLogger = new Logger();
 	public static default() {
 		return this.defaultLogger;
+	}
+
+	private _serializeValue(value: defined): defined {
+		if (typeIs(value, "Vector3")) {
+			return { X: value.X, Y: value.Y, Z: value.Z };
+		} else if (typeIs(value, "Vector2")) {
+			return { X: value.X, Y: value.Y };
+		} else if (typeIs(value, "Instance")) {
+			return value.GetFullName();
+		} else if (typeIs(value, "EnumItem")) {
+			return tostring(value);
+		} else if (
+			typeIs(value, "string") ||
+			typeIs(value, "number") ||
+			typeIs(value, "boolean") ||
+			typeIs(value, "table")
+		) {
+			return value;
+		} else {
+			return tostring(value);
+		}
 	}
 
 	private _write(logLevel: LogLevel, template: string, ...args: unknown[]) {
@@ -39,6 +62,17 @@ export default class Logger {
 			Template: template,
 			Timestamp: DateTime.now().ToIsoDate(),
 		};
+
+		const propertyTokens = MessageTemplateParser.GetTokens(template).filter(
+			(t): t is PropertyToken => t.kind === TemplateTokenKind.Property,
+		);
+
+		let idx = 0;
+		for (const token of propertyTokens) {
+			if (message[token.propertyName] !== undefined) {
+				message[token.propertyName] = this._serializeValue(args[idx++] as defined);
+			}
+		}
 
 		for (const enrich of this.enrichers) {
 			enrich(message);
@@ -76,5 +110,20 @@ export default class Logger {
 
 	public Fatal(template: string, ...args: unknown[]) {
 		this._write(LogLevel.Fatal, template, ...args);
+	}
+
+	/**
+	 * Creates a copy of this logger, and allows you to configure it
+	 * @returns The configuration for a copy of this logger
+	 */
+	public ConfigureCopy() {
+		const config = new LogConfiguration(new Logger());
+		for (const sink of this.sinks) {
+			config.WriteTo(sink);
+		}
+		for (const enricher of this.sinks) {
+			config.Enrich(enricher);
+		}
+		return config;
 	}
 }

@@ -1,82 +1,65 @@
 # Log
 Structured logger for Roblox based on [serilog](https://github.com/serilog/serilog) using the [Message Templates](https://messagetemplates.org/) spec. The goal of this library is to give a diagnostic logging library for Roblox games, that uses a structured logging system that can be consumed by different systems, such as consoles and web servers.
 
-## Logging
+Structured logging library for Roblox, akin to (and inspired by) [serilog](https://github.com/serilog/serilog). It uses the [Message Templates](https://messagetemplates.org/) spec for handling logging.
 
-To begin, you need to initialize a sink for the logger to log to.
-
-```ts
-import Log, {LogLevel} from "@rbxts/log";
-// If the logger is not configured, it will not emit anyt
-Log.SetLogger(new LoggerConfiguration()
-    .WriteTo(Log.RobloxOutput())
-    .SetMinLogLevel(LogLevel.Information)
-    .CreateLogger());
-
-Log.Info("Hello, World!") // will print `08:00 PM [INFO] Hello, World!`
-
-const sound = "woof!";
-Log.Info("The dog says {sound}", sound) // `08:00 PM [INFO] The dog says woof!`
-
-// You can also log complex structures such as arrays
-Log.Info("My array is {@Names}", ["Steve", "John"])
-// 08:00 PM [INFO] My array is ["Steve", "John"]
+## Setup
+To begin, you will need to install the package. This can be done via
+```
+npm i @rbxts/log
 ```
 
-## Supported sinks
-- ### Roblox output (via `Log.Output`)
-- ### [Zircon](https://github.com/roblox-aurora/zircon) (coming soon&trade;)
+Once installed, to begin logging you will need to configure the logger. (The server/client will need separate configurations, this is the recommended way of doing it)
 
-## Writing your own sink
-A `sink` in `Log` is just a function that takes an object passed by the library.
-
-Examples of the objects:
+Basic setup:
 ```ts
-Log.Info("Hello, World!")
+import Log, { Logger } from "@rbxts/log";
+Log.SetLogger(
+    Logger.configure()
+        .WriteTo(Log.RobloxOutput()) // WriteTo takes a sink and writes to it
+        .Create() // Creates the logger from the configuration
+);
+
+Log.Info("Hello, Log!");
 ```
+
+The main power of this library comes from the structured event data logging:
+```ts
+const startPoint = new Vector2(0, 0)
+const position = new Vector2(25, 134);
+const distance = position.sub(startPoint).Magnitude;
+
+Log.Info("Walked to {@Position}, travelling a distance of {Distance}", position, distance);
+```
+
+Log uses [message templates](https://messagetemplates.org/), like serilog and will format strings with _named_ parameters (positional coming soon).
+
+The example above has two properties, `Position` and `Distance`, in the log event the `@` operator in front of position tells Log to _serialize_ the object passed in, rather than using `tostring(value)`. The listed data types this library can serialize is listed below.
+
+Rendered into JSON using `HttpService`, these properties appear alongside the Timestamp, Level and Template like:
+
 ```json
-{
-    "Level": 1, 
-    "Time": 1624349445, // UNIX TIMESTAMP
-    "Template": "Hello, World!"
-}
+{"Position": {"X": 25, "Y": 134}, "Distance": 136.32 }
 ```
 
-```ts
-Log.Info("Hello {Name}! Numbers: {@Numbers}", "Reader", [10, 20, 30])
+The structured nature of the data means that it is easily searched and filtered by external tools (as well as roblox-based libraries like `Zircon`)
+
+Of course, this data can be logged to the roblox console or another supported console directly if need be, the default Roblox Output sink for example displays the above as such:
 ```
-```json
-{
-    "Level": 1, 
-    "Time": 1624349445, // UNIX TIMESTAMP
-    "Template": "Hello {Name}! Numbers: {@Numbers}",
-    // Additional user fields:
-    "Name": "Reader",
-    "Numbers": [10, 20, 30]
-}
+08:29:20 [INF] Walked to {"X": 25, "Y": 134}, travelling a distance of 136.32
 ```
 
-So, using this knowledge; `Log.Output` is:
-
-```ts
-const Output = (sink: Message) => {
-    const time = DateTime.fromUnixTimestamp(os.time()).FormatLocalTime("HH:MM:ss", "en-us");
-    let tag: string;
-    switch (sink.Level) {
-        case LogLevel.Debugging:
-            tag = "DBG";
-            break;
-        case LogLevel.Information:
-            tag = "INF";
-            break;
-        case LogLevel.Warning:
-            tag = "WRN";
-            break;
-        case LogLevel.Error:
-            tag = "ERR";
-            break;
-    }
-
-     print(time, `${tag}`, MessageTemplate.PlainText(sink.Template, sink));
-}
-```
+## Feature
+- Level-based logging, with levels like `Debug`, `Information`, `Warning` and `Error`.
+- Support for custom sinks, like logging to your own external server or to a console like the roblox output and Zircon.
+- The ability to enrich logging events using `EnrichWithProperty` or `Enrich`. E.g. add the version to your logging events:
+    ```ts
+    Log.SetLogger(
+        Logger.configure()
+            // ...
+            .EnrichWithProperty("Version", PKG_VERSION) // Will add "Version" to the event data
+            // ...
+            .Create()
+    );
+    ```
+- A global `Log` object, with the ability to create individual `Logger` objects.

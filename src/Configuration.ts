@@ -1,4 +1,5 @@
-import Logger from "./Logger";
+import { Logger } from "./Logger";
+const RunService = game.GetService("RunService");
 
 export interface StructuredMessage {
 	readonly Level: LogLevel;
@@ -25,8 +26,8 @@ export interface LogEnricher {
 export class LogConfiguration {
 	private sinks = new Array<LogSink>();
 	private enrichers = new Array<LogEnricher>();
-	private logLevel = LogLevel.Information;
-	public constructor(private logger: Logger = new Logger()) {}
+	private logLevel = RunService.IsStudio() ? LogLevel.Debugging : LogLevel.Information;
+	public constructor(private logger: Logger) {}
 
 	/**
 	 * Adds an output sink (e.g. A console or analytics provider)
@@ -60,8 +61,9 @@ export class LogConfiguration {
 		this.logLevel = logLevel;
 	}
 
-	public CreateLogger() {
+	public Create() {
 		this.logger._setSinks(this.sinks);
+		this.logger._setEnrichers(this.enrichers);
 		this.logger._setMinLogLevel(this.logLevel);
 		return this.logger;
 	}

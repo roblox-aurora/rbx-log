@@ -1,18 +1,29 @@
-import Log from "@rbxts/log";
+import Log, { Logger } from "@rbxts/log";
+import { MessageTemplateParser, PlainTextMessageTemplateRenderer } from "@rbxts/message-templates";
 import { LogConfiguration } from "./Configuration";
-import { MessageTemplateParser } from "./MessageTemplateParser";
 
-const test = MessageTemplateParser.Parse("Hello, {Name}! How is your {TimeOfDay}?");
+const test = MessageTemplateParser.GetTokens("Hello, {Name}! How is your {TimeOfDay}?");
+const result = new PlainTextMessageTemplateRenderer(test);
 
 const hour = DateTime.fromUnixTimestamp(os.time()).ToLocalTime().Hour;
 print(
-	test.Render({
+	result.Render({
 		Name: "Vorlias",
 		TimeOfDay: hour < 6 || hour > 16 ? "Night" : "Day",
 	}),
 );
 
 Log.SetLogger(
-	new LogConfiguration().WriteTo(Log.RobloxOutput()).EnrichWithProperty("Version", PKG_VERSION).CreateLogger(),
+	Logger.configure()
+		.WriteTo(
+			Log.RobloxOutput({
+				TagFormat: "full",
+			}),
+		)
+		.WriteTo((message) => print(message))
+		.EnrichWithProperty("Version", PKG_VERSION)
+		.Create(),
 );
-Log.Info("Hello, Vorlias!", "");
+Log.Info("Basic message with no arguments");
+Log.Info("Basic message using tag with no arguments {Woops}!");
+Log.Info("Hello, {Name}! {@AnArray}", "Vorlias", [1, 2, 3, 4]);
