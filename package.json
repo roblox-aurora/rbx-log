@@ -1,6 +1,6 @@
 {
   "name": "@rbxts/log",
-  "version": "0.1.0-alpha.2",
+  "version": "0.1.0-alpha.3",
   "description": "",
   "main": "out/init.lua",
   "scripts": {
@@ -24,8 +24,7 @@
   "license": "MIT",
   "types": "out/index.d.ts",
   "files": [
-    "out",
-    "message-templates/out"
+    "out"
   ],
   "publishConfig": {
     "access": "public"
