@@ -43,6 +43,7 @@ export class LogConfiguration {
 	 */
 	public Enrich(enricher: LogEnricher) {
 		this.enrichers.push(enricher);
+		return this;
 	}
 
 	/**
