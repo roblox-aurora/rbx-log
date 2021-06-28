@@ -9,15 +9,7 @@ import {
 } from "./MessageTemplateToken";
 
 export namespace MessageTemplateParser {
-	export function Parse(message: string) {
-		const tokens = new Array<Token>();
-		for (const token of tokenize(message)) {
-			tokens.push(token);
-		}
-		return new MessageTemplate(message, tokens);
-	}
-
-	export function GetTokens(message: string) {
+	export function ParseTokens(message: string) {
 		const tokens = new Array<Token>();
 		for (const token of tokenize(message)) {
 			tokens.push(token);

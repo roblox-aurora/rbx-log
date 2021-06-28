@@ -1,0 +1,23 @@
+{
+  "name": "@rbxts/message-templates",
+  "version": "0.1.0-alpha.0",
+  "description": "Message template library for Roblox TypeScript",
+  "main": "out/init.lua",
+  "scripts": {
+    "prepublishOnly": "rbxtsc"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "types": "out/index.d.ts",
+  "files": [
+    "out"
+  ],
+  "publishConfig": {
+    "access": "public"
+  },
+  "devDependencies": {
+    "@rbxts/compiler-types": "^1.1.1-types.3",
+    "@rbxts/types": "^1.0.496"
+  }
+}

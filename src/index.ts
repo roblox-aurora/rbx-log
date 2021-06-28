@@ -1,7 +1,9 @@
-import { MessageTemplateParser } from "./MessageTemplateParser";
 import { LogConfiguration, LogLevel, StructuredMessage } from "./Configuration";
+import { MessageTemplateParser } from "@rbxts/message-templates/out/MessageTemplateParser";
 import Logger from "./Logger";
+import { DestructureMode, TemplateTokenKind, Token } from "@rbxts/message-templates/out/MessageTemplateToken";
 export { LogLevel } from "./Configuration";
+const HttpService = game.GetService("HttpService");
 
 namespace Log {
 	let defaultLogger: Logger | undefined = Logger.default();
@@ -18,11 +20,38 @@ namespace Log {
 		return new Logger().Configure();
 	}
 
+	function RenderPlainText(tokens: Token[], properties: Record<string, defined>) {
+		let result = "";
+		for (const token of tokens) {
+			switch (token.kind) {
+				case TemplateTokenKind.Text:
+					result += token.text;
+					break;
+				case TemplateTokenKind.Property:
+					const prop = properties[token.propertyName];
+
+					if (token.destructureMode === DestructureMode.ToString) {
+						result += tostring(prop);
+					} else if (token.destructureMode === DestructureMode.Destructure) {
+						result += HttpService.JSONEncode(prop);
+					} else {
+						if (typeIs(prop, "Instance")) {
+							result += prop.GetFullName();
+						} else if (typeIs(prop, "table")) {
+							result += HttpService.JSONEncode(prop);
+						} else {
+							result += tostring(prop);
+						}
+					}
+			}
+		}
+		return result;
+	}
+
 	export const RobloxOutput = () => {
 		return (message: StructuredMessage) => {
-			const template = MessageTemplateParser.Parse(message.Template);
-			const renderedTemplate = template.Render(message);
-
+			const template = MessageTemplateParser.ParseTokens(message.Template);
+			const renderedTemplate = RenderPlainText(template, message);
 			const time = DateTime.fromIsoDate(message.Timestamp)?.FormatLocalTime("LT", "en-us");
 			let tag: string;
 			switch (message.Level) {
@@ -45,7 +74,6 @@ namespace Log {
 					tag = "WTF";
 					break;
 			}
-
 			if (message.Level >= LogLevel.Warning) {
 				warn(time, `[${tag}]`, renderedTemplate);
 			} else {
