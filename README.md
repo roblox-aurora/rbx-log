@@ -1,7 +1,6 @@
-<center>
-
-![](https://i.imgur.com/yzq5cEa.png)
-</center>
+<div align="center">
+<img src="https://i.imgur.com/yzq5cEa.png">
+</div>
 
 Structured logging library for Roblox, akin to (and inspired by) [serilog](https://github.com/serilog/serilog). It uses the [Message Templates](https://messagetemplates.org/) spec for handling logging.
 
