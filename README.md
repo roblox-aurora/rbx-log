@@ -49,7 +49,7 @@ Of course, this data can be logged to the roblox console or another supported co
 08:29:20 [INF] Walked to {"X": 25, "Y": 134}, travelling a distance of 136.32
 ```
 
-## Feature
+## Features
 - Level-based logging, with levels like `Debug`, `Information`, `Warning` and `Error`.
 - Support for custom sinks, like logging to your own external server or to a console like the roblox output and Zircon.
 - The ability to enrich logging events using `EnrichWithProperty` or `Enrich`. E.g. add the version to your logging events:
