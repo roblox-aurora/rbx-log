@@ -1,6 +1,4 @@
 # Log
-Structured logger for Roblox based on [serilog](https://github.com/serilog/serilog) using the [Message Templates](https://messagetemplates.org/) spec. The goal of this library is to give a diagnostic logging library for Roblox games, that uses a structured logging system that can be consumed by different systems, such as consoles and web servers.
-
 Structured logging library for Roblox, akin to (and inspired by) [serilog](https://github.com/serilog/serilog). It uses the [Message Templates](https://messagetemplates.org/) spec for handling logging.
 
 ## Setup
