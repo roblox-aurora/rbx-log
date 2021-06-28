@@ -17,6 +17,14 @@ export namespace MessageTemplateParser {
 		return new MessageTemplate(message, tokens);
 	}
 
+	export function GetTokens(message: string) {
+		const tokens = new Array<Token>();
+		for (const token of tokenize(message)) {
+			tokens.push(token);
+		}
+		return tokens;
+	}
+
 	function* tokenize(messageTemplate: string): Generator<Token, void, unknown> {
 		if (messageTemplate.size() === 0) {
 			yield identity<TextToken>({ kind: TemplateTokenKind.Text, text: "" });

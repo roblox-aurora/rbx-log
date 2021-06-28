@@ -6,19 +6,20 @@ Structured logger for Roblox based on [serilog](https://github.com/serilog/seril
 To begin, you need to initialize a sink for the logger to log to.
 
 ```ts
-import Log from "@rbxts/log";
+import Log, {LogLevel} from "@rbxts/log";
 // If the logger is not configured, it will not emit anyt
-Log.Configure()
+Log.SetLogger(new LoggerConfiguration()
     .WriteTo(Log.RobloxOutput())
-    .Initialize();
+    .SetMinLogLevel(LogLevel.Information)
+    .CreateLogger());
 
-Log.Information("Hello, World!") // will print `08:00 PM [INFO] Hello, World!`
+Log.Info("Hello, World!") // will print `08:00 PM [INFO] Hello, World!`
 
 const sound = "woof!";
-Log.Information("The dog says {sound}", sound) // `08:00 PM [INFO] The dog says woof!`
+Log.Info("The dog says {sound}", sound) // `08:00 PM [INFO] The dog says woof!`
 
 // You can also log complex structures such as arrays
-Log.Information("My array is {@Names}", ["Steve", "John"])
+Log.Info("My array is {@Names}", ["Steve", "John"])
 // 08:00 PM [INFO] My array is ["Steve", "John"]
 ```
 
@@ -31,7 +32,7 @@ A `sink` in `Log` is just a function that takes an object passed by the library.
 
 Examples of the objects:
 ```ts
-Log.Information("Hello, World!")
+Log.Info("Hello, World!")
 ```
 ```json
 {
@@ -42,7 +43,7 @@ Log.Information("Hello, World!")
 ```
 
 ```ts
-Log.Information("Hello {Name}! Numbers: {@Numbers}", "Reader", [10, 20, 30])
+Log.Info("Hello {Name}! Numbers: {@Numbers}", "Reader", [10, 20, 30])
 ```
 ```json
 {

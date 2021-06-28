@@ -1,15 +1,13 @@
+import { MessageTemplateParser } from "./MessageTemplateParser";
 import { LogConfiguration, LogLevel, StructuredMessage } from "./Configuration";
 import Logger from "./Logger";
+export { LogLevel } from "./Configuration";
 
 namespace Log {
-	const defaultLogger = Logger.default();
+	let defaultLogger: Logger | undefined = Logger.default();
 
-	/**
-	 * Configure the default logger
-	 * @returns A configuration builder for the default logger
-	 */
-	export function Configure() {
-		return new LogConfiguration(defaultLogger);
+	export function SetLogger(logger: Logger) {
+		defaultLogger = logger;
 	}
 
 	/**
@@ -22,9 +20,15 @@ namespace Log {
 
 	export const RobloxOutput = () => {
 		return (message: StructuredMessage) => {
-			const time = DateTime.fromUnixTimestamp(os.time()).FormatLocalTime("HH:MM:ss", "en-us");
+			const template = MessageTemplateParser.Parse(message.Template);
+			const renderedTemplate = template.Render(message);
+
+			const time = DateTime.fromIsoDate(message.Timestamp)?.FormatLocalTime("LT", "en-us");
 			let tag: string;
 			switch (message.Level) {
+				case LogLevel.Verbose:
+					tag = "VER";
+					break;
 				case LogLevel.Debugging:
 					tag = "DBG";
 					break;
@@ -37,13 +41,15 @@ namespace Log {
 				case LogLevel.Error:
 					tag = "ERR";
 					break;
+				case LogLevel.Fatal:
+					tag = "WTF";
+					break;
 			}
 
-			// TODO: MessageTemplate
 			if (message.Level >= LogLevel.Warning) {
-				warn(time, `[${tag}]`, message.Template);
+				warn(time, `[${tag}]`, renderedTemplate);
 			} else {
-				print(time, `[${tag}]`, message.Template);
+				print(time, `[${tag}]`, renderedTemplate);
 			}
 		};
 	};
@@ -54,7 +60,7 @@ namespace Log {
 	 * @param args
 	 */
 	export function Info(template: string, ...args: unknown[]) {
-		defaultLogger.Info(template, ...args);
+		defaultLogger?.Info(template, ...args);
 	}
 
 	/**
@@ -63,7 +69,7 @@ namespace Log {
 	 * @param args
 	 */
 	export function Debug(template: string, ...args: unknown[]) {
-		defaultLogger.Debug(template, ...args);
+		defaultLogger?.Debug(template, ...args);
 	}
 
 	/**
@@ -72,7 +78,7 @@ namespace Log {
 	 * @param args
 	 */
 	export function Warn(template: string, ...args: unknown[]) {
-		defaultLogger.Warn(template, ...args);
+		defaultLogger?.Warn(template, ...args);
 	}
 
 	/**
@@ -81,7 +87,7 @@ namespace Log {
 	 * @param args
 	 */
 	export function Error(template: string, ...args: unknown[]) {
-		defaultLogger.Error(template, ...args);
+		defaultLogger?.Error(template, ...args);
 	}
 }
-export = Log;
+export default Log;

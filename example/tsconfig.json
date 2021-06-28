@@ -25,8 +25,8 @@
         "baseUrl": ".",
 
         "paths": {
-            "@rbxts/net": ["../src"],
-            "@rbxts/net/*": ["../src/*"]
+            "@rbxts/log": ["../src"],
+            "@rbxts/log/*": ["../src/*"]
         },
         "jsx": "react",
         "jsxFactory": "Roact.createElement",

@@ -1,15 +1,22 @@
-import { LogConfiguration, LogLevel, LogSink, StructuredMessage } from "./Configuration";
+import { LogConfiguration, LogEnricher, LogLevel, LogSink, StructuredMessage } from "./Configuration";
 
 export default class Logger {
 	private sinks: ReadonlyArray<LogSink>;
+	private enrichers: ReadonlyArray<LogEnricher>;
+
 	private minLogLevel = LogLevel.Information;
 	public constructor() {
 		this.sinks = [];
+		this.enrichers = [];
 	}
 
 	/** @internal */
 	public _setSinks(sinks: ReadonlyArray<LogSink>) {
 		this.sinks = sinks;
+	}
+
+	public _setEnrichers(enrichers: ReadonlyArray<LogEnricher>) {
+		this.enrichers = enrichers;
 	}
 
 	/** @internal */
@@ -26,52 +33,48 @@ export default class Logger {
 		return this.defaultLogger;
 	}
 
+	private _write(logLevel: LogLevel, template: string, ...args: unknown[]) {
+		const message: StructuredMessage = {
+			Level: logLevel,
+			Template: template,
+			Timestamp: DateTime.now().ToIsoDate(),
+		};
+
+		for (const enrich of this.enrichers) {
+			enrich(message);
+		}
+
+		for (const sink of this.sinks) {
+			sink(message);
+		}
+	}
+
+	public Verbose(template: string, ...args: unknown[]) {
+		if (this.minLogLevel > LogLevel.Verbose) return;
+		this._write(LogLevel.Verbose, template, ...args);
+	}
+
 	public Info(template: string, ...args: unknown[]) {
 		if (this.minLogLevel > LogLevel.Information) return;
-
-		for (const sink of this.sinks) {
-			sink({
-				Level: LogLevel.Information,
-				Template: template,
-				Time: os.time(),
-				// TODO: Get arguments, place in object
-			});
-		}
+		this._write(LogLevel.Information, template, ...args);
 	}
+
 	public Debug(template: string, ...args: unknown[]) {
 		if (this.minLogLevel > LogLevel.Debugging) return;
-
-		for (const sink of this.sinks) {
-			sink({
-				Level: LogLevel.Information,
-				Template: template,
-				Time: os.time(),
-				// TODO: Get arguments, place in object
-			});
-		}
+		this._write(LogLevel.Debugging, template, ...args);
 	}
+
 	public Warn(template: string, ...args: unknown[]) {
 		if (this.minLogLevel > LogLevel.Warning) return;
-
-		for (const sink of this.sinks) {
-			sink({
-				Level: LogLevel.Information,
-				Template: template,
-				Time: os.time(),
-				// TODO: Get arguments, place in object
-			});
-		}
+		this._write(LogLevel.Warning, template, ...args);
 	}
+
 	public Error(template: string, ...args: unknown[]) {
 		if (this.minLogLevel > LogLevel.Error) return;
+		this._write(LogLevel.Error, template, ...args);
+	}
 
-		for (const sink of this.sinks) {
-			sink({
-				Level: LogLevel.Information,
-				Template: template,
-				Time: os.time(),
-				// TODO: Get arguments, place in object
-			});
-		}
+	public Fatal(template: string, ...args: unknown[]) {
+		this._write(LogLevel.Fatal, template, ...args);
 	}
 }

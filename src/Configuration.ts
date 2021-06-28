@@ -2,36 +2,67 @@ import Logger from "./Logger";
 
 export interface StructuredMessage {
 	readonly Level: LogLevel;
-	readonly Time: number;
+	readonly Timestamp: string;
 	readonly Template: string;
-	readonly [name: string]: defined;
+	[name: string]: defined;
 }
 export enum LogLevel {
+	Verbose,
 	Debugging,
 	Information,
 	Warning,
 	Error,
+	Fatal,
 }
 export interface LogSink {
+	(message: Readonly<StructuredMessage>): void;
+}
+
+export interface LogEnricher {
 	(message: StructuredMessage): void;
 }
 
 export class LogConfiguration {
 	private sinks = new Array<LogSink>();
+	private enrichers = new Array<LogEnricher>();
 	private logLevel = LogLevel.Information;
-	public constructor(private logger: Logger) {}
+	public constructor(private logger: Logger = new Logger()) {}
 
+	/**
+	 * Adds an output sink (e.g. A console or analytics provider)
+	 * @param sink The sink to add
+	 */
 	public WriteTo(sink: LogSink) {
 		this.sinks.push(sink);
 		return this;
 	}
 
-	public SetLogLevel(logLevel: LogLevel) {
+	/**
+	 * Adds an "enricher", which adds extra properties to a log event.
+	 */
+	public Enrich(enricher: LogEnricher) {
+		this.enrichers.push(enricher);
+	}
+
+	/**
+	 * Adds a static property value to each message
+	 * @param propertyName The property name
+	 * @param value The value of the property
+	 */
+	public EnrichWithProperty(propertyName: string, value: defined) {
+		this.enrichers.push((message) => {
+			message[propertyName] = value;
+		});
+		return this;
+	}
+
+	public SetMinLogLevel(logLevel: LogLevel) {
 		this.logLevel = logLevel;
 	}
 
-	public Initialize() {
+	public CreateLogger() {
 		this.logger._setSinks(this.sinks);
+		this.logger._setMinLogLevel(this.logLevel);
 		return this.logger;
 	}
 }
