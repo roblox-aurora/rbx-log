@@ -69,9 +69,7 @@ export class Logger {
 
 		let idx = 0;
 		for (const token of propertyTokens) {
-			if (message[token.propertyName] !== undefined) {
-				message[token.propertyName] = this._serializeValue(args[idx++] as defined);
-			}
+			message[token.propertyName] = this._serializeValue(args[idx++] as defined);
 		}
 
 		for (const enrich of this.enrichers) {
