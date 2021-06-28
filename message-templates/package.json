@@ -13,6 +13,14 @@
   "files": [
     "out"
   ],
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/roblox-aurora/rbx-log.git"
+  },
+  "bugs": {
+    "url": "https://github.com/roblox-aurora/rbx-log/issues"
+  },
+  "homepage": "https://github.com/roblox-aurora/rbx-log#readme",
   "publishConfig": {
     "access": "public"
   },
