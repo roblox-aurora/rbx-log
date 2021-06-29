@@ -1,10 +1,11 @@
 import { MessageTemplateParser } from "@rbxts/message-templates/out/MessageTemplateParser";
 import { PropertyToken, TemplateTokenKind } from "@rbxts/message-templates/out/MessageTemplateToken";
-import { LogConfiguration, LogEnricher, LogLevel, LogSink, StructuredMessage } from "./Configuration";
+import { LogLevel, ILogEventEnricher, ILogEventSink, LogEvent } from "./Core";
+import { LogConfiguration } from "./Configuration";
 
 export class Logger {
-	private sinks: ReadonlyArray<LogSink>;
-	private enrichers: ReadonlyArray<LogEnricher>;
+	private sinks: ReadonlyArray<ILogEventSink>;
+	private enrichers: ReadonlyArray<ILogEventEnricher>;
 
 	private minLogLevel = LogLevel.Information;
 	private constructor() {
@@ -17,11 +18,11 @@ export class Logger {
 	}
 
 	/** @internal */
-	public _setSinks(sinks: ReadonlyArray<LogSink>) {
+	public _setSinks(sinks: ReadonlyArray<ILogEventSink>) {
 		this.sinks = sinks;
 	}
 
-	public _setEnrichers(enrichers: ReadonlyArray<LogEnricher>) {
+	public _setEnrichers(enrichers: ReadonlyArray<ILogEventEnricher>) {
 		this.enrichers = enrichers;
 	}
 
@@ -57,7 +58,7 @@ export class Logger {
 	}
 
 	private _write(logLevel: LogLevel, template: string, ...args: unknown[]) {
-		const message: StructuredMessage = {
+		const message: LogEvent = {
 			Level: logLevel,
 			Template: template,
 			Timestamp: DateTime.now().ToIsoDate(),
@@ -72,12 +73,16 @@ export class Logger {
 			message[token.propertyName] = this._serializeValue(args[idx++] as defined);
 		}
 
-		for (const enrich of this.enrichers) {
-			enrich(message);
+		for (const enricher of this.enrichers) {
+			const toApply = new Map<string, defined>();
+			enricher.Enrich(message, toApply);
+			for (const [key, value] of toApply) {
+				message[key] = value;
+			}
 		}
 
 		for (const sink of this.sinks) {
-			sink(message);
+			sink.Emit(message);
 		}
 	}
 
@@ -149,7 +154,7 @@ export class Logger {
 		for (const sink of this.sinks) {
 			config.WriteTo(sink);
 		}
-		for (const enricher of this.sinks) {
+		for (const enricher of this.enrichers) {
 			config.Enrich(enricher);
 		}
 		return config;

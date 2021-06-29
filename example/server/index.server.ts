@@ -1,6 +1,5 @@
-import Log, { Logger } from "@rbxts/log";
+import Log, { Logger, LogLevel } from "@rbxts/log";
 import { MessageTemplateParser, PlainTextMessageTemplateRenderer } from "@rbxts/message-templates";
-import { LogConfiguration } from "./Configuration";
 
 const test = MessageTemplateParser.GetTokens("Hello, {Name}! How is your {TimeOfDay}?");
 const result = new PlainTextMessageTemplateRenderer(test);
@@ -15,13 +14,10 @@ print(
 
 Log.SetLogger(
 	Logger.configure()
-		.WriteTo(
-			Log.RobloxOutput({
-				TagFormat: "full",
-			}),
-		)
-		.WriteTo((message) => print(message))
 		.EnrichWithProperty("Version", PKG_VERSION)
+		.EnrichWithProperty("Test", 10, (c) => c.SetMinLogLevel(LogLevel.Fatal))
+		.WriteTo(Log.RobloxOutput())
+		.WriteToCallback((message) => print(message))
 		.Create(),
 );
 Log.Info("Basic message with no arguments");

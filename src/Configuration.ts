@@ -1,39 +1,33 @@
+import { ILogEventPropertyEnricher, LogEventPropertyEnricher } from "./Core/LogEventPropertyEnricher";
+import { LogEventSinkCallback, LogLevel, ILogEventEnricher, ILogEventSink } from "./Core";
 import { Logger } from "./Logger";
+import { ILogEventCallbackSink, LogEventCallbackSink } from "./Core/LogEventCallbackSink";
 const RunService = game.GetService("RunService");
 
-export interface StructuredMessage {
-	readonly Level: LogLevel;
-	readonly Timestamp: string;
-	readonly Template: string;
-	[name: string]: defined;
-}
-export enum LogLevel {
-	Verbose,
-	Debugging,
-	Information,
-	Warning,
-	Error,
-	Fatal,
-}
-export interface LogSink {
-	(message: Readonly<StructuredMessage>): void;
-}
-
-export interface LogEnricher {
-	(message: StructuredMessage): void;
-}
-
 export class LogConfiguration {
-	private sinks = new Array<LogSink>();
-	private enrichers = new Array<LogEnricher>();
+	private sinks = new Array<ILogEventSink>();
+	private enrichers = new Array<ILogEventEnricher>();
 	private logLevel = RunService.IsStudio() ? LogLevel.Debugging : LogLevel.Information;
 	public constructor(private logger: Logger) {}
 
 	/**
 	 * Adds an output sink (e.g. A console or analytics provider)
 	 * @param sink The sink to add
+	 * @param configure Configure the specified sink
 	 */
-	public WriteTo(sink: LogSink) {
+	public WriteTo<TSink extends ILogEventSink>(sink: TSink, configure?: (value: Omit<TSink, "Emit">) => void) {
+		configure?.(sink);
+		this.sinks.push(sink);
+		return this;
+	}
+
+	/**
+	 * Adds a callback based sink
+	 * @param sinkCallback The sink callback
+	 */
+	public WriteToCallback(sinkCallback: LogEventSinkCallback, configure?: (value: ILogEventCallbackSink) => void) {
+		const sink = new LogEventCallbackSink(sinkCallback);
+		configure?.(sink);
 		this.sinks.push(sink);
 		return this;
 	}
@@ -41,8 +35,12 @@ export class LogConfiguration {
 	/**
 	 * Adds an "enricher", which adds extra properties to a log event.
 	 */
-	public Enrich(enricher: LogEnricher) {
-		this.enrichers.push(enricher);
+	public Enrich(enricher: ILogEventEnricher) {
+		if (typeIs(enricher, "function")) {
+		} else {
+			this.enrichers.push(enricher);
+		}
+
 		return this;
 	}
 
@@ -51,10 +49,14 @@ export class LogConfiguration {
 	 * @param propertyName The property name
 	 * @param value The value of the property
 	 */
-	public EnrichWithProperty(propertyName: string, value: defined) {
-		this.enrichers.push((message) => {
-			message[propertyName] = value;
-		});
+	public EnrichWithProperty<V extends defined>(
+		propertyName: string,
+		value: V,
+		configure?: (enricher: ILogEventPropertyEnricher) => void,
+	) {
+		const enricher = new LogEventPropertyEnricher(propertyName, value);
+		configure?.(enricher);
+		this.enrichers.push(enricher);
 		return this;
 	}
 

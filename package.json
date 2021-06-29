@@ -1,6 +1,6 @@
 {
   "name": "@rbxts/log",
-  "version": "0.2.1-alpha.0",
+  "version": "0.3.0-alpha.0",
   "description": "",
   "main": "out/init.lua",
   "scripts": {
