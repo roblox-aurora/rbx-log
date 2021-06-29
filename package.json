@@ -1,6 +1,6 @@
 {
   "name": "@rbxts/log",
-  "version": "0.3.0-alpha.0",
+  "version": "0.3.0-alpha.1",
   "description": "",
   "main": "out/init.lua",
   "scripts": {
@@ -29,9 +29,11 @@
   "publishConfig": {
     "access": "public"
   },
+  "dependencies": {
+    "@rbxts/message-templates": "^0.2.0"
+  },
   "devDependencies": {
     "@rbxts/compiler-types": "^1.1.1-types.3",
-    "@rbxts/message-templates": "^0.2.0",
     "@rbxts/types": "^1.0.495",
     "@typescript-eslint/eslint-plugin": "^4.28.0",
     "@typescript-eslint/parser": "^4.28.0",
