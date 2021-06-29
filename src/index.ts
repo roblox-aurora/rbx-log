@@ -40,6 +40,7 @@ namespace Log {
 		 */
 		TagFormat?: "short" | "full";
 	}
+
 	export const RobloxOutput = (options: RobloxOutputOptions = {}) => {
 		const { ShowCurrentTime = false, TagFormat = "short" } = options;
 		return (message: StructuredMessage) => {
@@ -79,6 +80,24 @@ namespace Log {
 			}
 		};
 	};
+
+	/**
+	 * Write a "Fatal" message to the default logger
+	 * @param template
+	 * @param args
+	 */
+	export function Fatal(template: string, ...args: unknown[]) {
+		defaultLogger?.Fatal(template, ...args);
+	}
+
+	/**
+	 * Write a "Verbose" message to the default logger
+	 * @param template
+	 * @param args
+	 */
+	export function Verbose(template: string, ...args: unknown[]) {
+		defaultLogger?.Verbose(template, ...args);
+	}
 
 	/**
 	 * Write an "Information" message to the default logger

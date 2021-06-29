@@ -81,31 +81,61 @@ export class Logger {
 		}
 	}
 
+	/**
+	 * Writes a verbose message to this log stream
+	 * @param template The template message using the [Message Templates](https://messagetemplates.org/) spec.
+	 * @param args The values to apply to the template
+	 */
 	public Verbose(template: string, ...args: unknown[]) {
 		if (this.minLogLevel > LogLevel.Verbose) return;
 		this._write(LogLevel.Verbose, template, ...args);
 	}
 
+	/**
+	 * Writes an information message to this log stream
+	 * @param template The template message using the [Message Templates](https://messagetemplates.org/) spec.
+	 * @param args The values to apply to the template
+	 */
 	public Info(template: string, ...args: unknown[]) {
 		if (this.minLogLevel > LogLevel.Information) return;
 		this._write(LogLevel.Information, template, ...args);
 	}
 
+	/**
+	 * Writes a debug message to this log stream
+	 * @param template The template message using the [Message Templates](https://messagetemplates.org/) spec.
+	 * @param args The values to apply to the template
+	 */
 	public Debug(template: string, ...args: unknown[]) {
 		if (this.minLogLevel > LogLevel.Debugging) return;
 		this._write(LogLevel.Debugging, template, ...args);
 	}
 
+	/**
+	 * Writes a warning message to this log stream
+	 * @param template The template message using the [Message Templates](https://messagetemplates.org/) spec.
+	 * @param args The values to apply to the template
+	 */
 	public Warn(template: string, ...args: unknown[]) {
 		if (this.minLogLevel > LogLevel.Warning) return;
 		this._write(LogLevel.Warning, template, ...args);
 	}
 
+	/**
+	 * Writes a error message to this log stream
+	 * @param template The template message using the [Message Templates](https://messagetemplates.org/) spec.
+	 * @param args The values to apply to the template
+	 */
 	public Error(template: string, ...args: unknown[]) {
 		if (this.minLogLevel > LogLevel.Error) return;
 		this._write(LogLevel.Error, template, ...args);
 	}
 
+	/**
+	 * Writes a fatal message to this log stream
+	 * @param template The template message using the [Message Templates](https://messagetemplates.org/) spec.
+	 * @param args The values to apply to the template
+	 */
 	public Fatal(template: string, ...args: unknown[]) {
 		this._write(LogLevel.Fatal, template, ...args);
 	}

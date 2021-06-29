@@ -58,8 +58,13 @@ export class LogConfiguration {
 		return this;
 	}
 
+	/**
+	 * Sets the minimum log level
+	 * @param logLevel The minimum log level to display
+	 */
 	public SetMinLogLevel(logLevel: LogLevel) {
 		this.logLevel = logLevel;
+		return this;
 	}
 
 	public Create() {
