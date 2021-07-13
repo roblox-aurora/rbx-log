@@ -215,4 +215,4 @@ export class Logger {
 	}
 }
 
-export type LoggerContext = Instance | (new (...args: unknown[]) => unknown) | { toString(): string };
+export type LoggerContext = Instance | (new (...args: any[]) => any) | { toString(): string };
