@@ -201,7 +201,7 @@ export class Logger {
 	 * Creates a logger that enriches log events with `SourceContext` as the specified function
 	 */
 	public ForFunction(func: () => void) {
-		const [n] = debug.info(func, "f");
+		const [n] = debug.info(func, "n");
 		return this.Copy().EnrichWithProperty("SourceContext", n ?? "<anonymous>");
 	}
 
