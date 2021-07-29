@@ -1,8 +1,9 @@
 import { MessageTemplateParser } from "@rbxts/message-templates/out/MessageTemplateParser";
-import { PropertyToken, TemplateTokenKind } from "@rbxts/message-templates/out/MessageTemplateToken";
+import { DestructureMode, PropertyToken, TemplateTokenKind } from "@rbxts/message-templates/out/MessageTemplateToken";
 import { LogLevel, ILogEventEnricher, ILogEventSink, LogEvent } from "./Core";
 import { LogConfiguration } from "./Configuration";
 import { PlainTextMessageTemplateRenderer } from "@rbxts/message-templates";
+import { RbxSerializer } from "@rbxts/message-templates/out/RbxSerializer";
 
 export class Logger {
 	private sinks: ReadonlyArray<ILogEventSink>;
@@ -66,8 +67,9 @@ export class Logger {
 	 * @returns The message formatted using the `PlainTextMessageTemplateRenderer`
 	 */
 	public Write(logLevel: LogLevel, template: string, ...args: unknown[]) {
-		const message: LogEvent = {
+		const message: Writable<LogEvent> = {
 			Level: logLevel,
+			SourceContext: undefined,
 			Template: template,
 			Timestamp: DateTime.now().ToIsoDate(),
 		};
@@ -77,14 +79,24 @@ export class Logger {
 
 		let idx = 0;
 		for (const token of propertyTokens) {
-			message[token.propertyName] = this._serializeValue(args[idx++] as defined);
+			const arg = args[idx++];
+
+			if (idx <= args.size()) {
+				if (arg !== undefined) {
+					if (token.destructureMode === DestructureMode.ToString) {
+						message[token.propertyName] = tostring(arg);
+					} else {
+						message[token.propertyName] = typeIs(arg, "table") ? arg : RbxSerializer.Serialize(arg);
+					}
+				}
+			}
 		}
 
 		for (const enricher of this.enrichers) {
 			const toApply = new Map<string, defined>();
 			enricher.Enrich(message, toApply);
 			for (const [key, value] of toApply) {
-				message[key] = value;
+				message[key] = typeIs(value, "table") ? value : RbxSerializer.Serialize(value);
 			}
 		}
 

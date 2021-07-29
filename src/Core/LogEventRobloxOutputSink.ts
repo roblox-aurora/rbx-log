@@ -3,31 +3,34 @@ import { ILogEventSink, LogEvent, LogLevel } from "../Core";
 
 export interface RobloxOutputOptions {
 	/**
-	 * Whether or not to show the time
-	 *
-	 * If true, it will be formatted like:
-	 * - `19:38:23 [TAG] Message goes here`
-	 * @deprecated Both the roblox output and developer console now have this by default.
-	 */
-	ShowCurrentTime?: boolean;
-	/**
 	 * The tag format
 	 * - `short` - `DBG`, `INF`, `WRN`, `ERR`, `FTL`
 	 * - `full` - `DEBUG`, `INFO`, `WARNING`, `ERROR`, `FATAL`
 	 */
 	TagFormat?: "short" | "full";
+
+	/**
+	 * Ignores logging errors.
+	 *
+	 * Use this if you use the `throw Log.Error(...)` or `throw Log.Fatal(...)` patterns.
+	 */
+	ErrorsTreatedAsExceptions?: boolean;
 }
 export class LogEventRobloxOutputSink implements ILogEventSink {
 	public constructor(private options: RobloxOutputOptions) {}
 	Emit(message: LogEvent): void {
-		const { ShowCurrentTime, TagFormat } = this.options;
+		const { TagFormat = "short", ErrorsTreatedAsExceptions } = this.options;
+
+		if (message.Level >= LogLevel.Error && ErrorsTreatedAsExceptions) {
+			return;
+		}
 
 		const template = new PlainTextMessageTemplateRenderer(MessageTemplateParser.GetTokens(message.Template));
 		const time = DateTime.fromIsoDate(message.Timestamp)?.FormatLocalTime("HH:mm:ss", "en-us");
 		let tag: string;
 		switch (message.Level) {
 			case LogLevel.Verbose:
-				tag = TagFormat === "short" ? "VVV" : "VERBOSE";
+				tag = TagFormat === "short" ? "VRB" : "VERBOSE";
 				break;
 			case LogLevel.Debugging:
 				tag = TagFormat === "short" ? "DBG" : "DEBUG";
@@ -47,9 +50,7 @@ export class LogEventRobloxOutputSink implements ILogEventSink {
 		}
 
 		const messageRendered = template.Render(message);
-		const formattedMessage = ShowCurrentTime
-			? `${time} [${tag}] ${messageRendered}`
-			: `[${tag}] ${messageRendered}`;
+		const formattedMessage = `[${tag}] ${messageRendered}`;
 
 		if (message.Level >= LogLevel.Warning) {
 			warn(formattedMessage);

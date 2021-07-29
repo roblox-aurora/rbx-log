@@ -156,6 +156,8 @@ export namespace RbxSerializer {
 			return value;
 		} else if (typeIs(value, "table")) {
 			return HttpService.JSONEncode(value);
+		} else if (typeIs(value, "nil")) {
+			return undefined;
 		} else {
 			throw `Destructuring of '${typeOf(value)}' not supported by Serializer`;
 		}

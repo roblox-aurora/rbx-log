@@ -16,10 +16,15 @@ Log.SetLogger(
 	Logger.configure()
 		.EnrichWithProperty("Version", PKG_VERSION)
 		.EnrichWithProperty("Test", 10, (c) => c.SetMinLogLevel(LogLevel.Fatal))
-		.WriteTo(Log.RobloxOutput())
+		.WriteTo(Log.RobloxOutput({ ErrorsTreatedAsExceptions: true }))
 		.WriteToCallback((message) => print(message))
 		.Create(),
 );
-Log.Info("Basic message with no arguments");
-Log.Info("Basic message using tag with no arguments {Woops}!");
-Log.Info("Hello, {Name}! {@AnArray}", "Vorlias", [1, 2, 3, 4]);
+
+const logger = Log.ForScript();
+logger.Info("Basic message with no arguments");
+logger.Info("Basic message using tag with no arguments {Woops}!");
+logger.Info("Hello, {Name}! {@AnArray} {AnObject}", "Vorlias", [1, 2, 3, 4], { A: 10 });
+
+// Throw the message :-)
+throw Log.Fatal("Invalid input '{@Input}' - expects something else.", "InputExample");
