@@ -2,6 +2,7 @@ import { MessageTemplateParser } from "@rbxts/message-templates/out/MessageTempl
 import { PropertyToken, TemplateTokenKind } from "@rbxts/message-templates/out/MessageTemplateToken";
 import { LogLevel, ILogEventEnricher, ILogEventSink, LogEvent } from "./Core";
 import { LogConfiguration } from "./Configuration";
+import { PlainTextMessageTemplateRenderer } from "@rbxts/message-templates";
 
 export class Logger {
 	private sinks: ReadonlyArray<ILogEventSink>;
@@ -62,6 +63,7 @@ export class Logger {
 	 * @param logLevel The log level of this event
 	 * @param template The template message using the [Message Templates](https://messagetemplates.org/) spec.
 	 * @param args The values to apply to the template
+	 * @returns The message formatted using the `PlainTextMessageTemplateRenderer`
 	 */
 	public Write(logLevel: LogLevel, template: string, ...args: unknown[]) {
 		const message: LogEvent = {
@@ -70,9 +72,8 @@ export class Logger {
 			Timestamp: DateTime.now().ToIsoDate(),
 		};
 
-		const propertyTokens = MessageTemplateParser.GetTokens(template).filter(
-			(t): t is PropertyToken => t.kind === TemplateTokenKind.Property,
-		);
+		const tokens = MessageTemplateParser.GetTokens(template);
+		const propertyTokens = tokens.filter((t): t is PropertyToken => t.kind === TemplateTokenKind.Property);
 
 		let idx = 0;
 		for (const token of propertyTokens) {
@@ -90,6 +91,8 @@ export class Logger {
 		for (const sink of this.sinks) {
 			sink.Emit(message);
 		}
+
+		return new PlainTextMessageTemplateRenderer(tokens).Render(message);
 	}
 
 	/**
@@ -146,7 +149,7 @@ export class Logger {
 	 */
 	public Error(template: string, ...args: unknown[]) {
 		if (this.GetLevel() > LogLevel.Error) return;
-		this.Write(LogLevel.Error, template, ...args);
+		return this.Write(LogLevel.Error, template, ...args);
 	}
 
 	/**
@@ -155,7 +158,7 @@ export class Logger {
 	 * @param args The values to apply to the template
 	 */
 	public Fatal(template: string, ...args: unknown[]) {
-		this.Write(LogLevel.Fatal, template, ...args);
+		return this.Write(LogLevel.Fatal, template, ...args);
 	}
 
 	/**
@@ -176,9 +179,26 @@ export class Logger {
 
 	/**
 	 * Creates a logger that enriches log events with the specified context as the property `SourceContext`.
+	 *
+	 * ```ts
+	 * class MyService {
+	 * 	private logger = Log.ForContext(MyService);
+	 * 	public exampleFunction() {
+	 * 		// Sets `SourceContext` of this to `MyService@[SourceFile]`.
+	 * 		this.logger.Info("Hello from exampleFunction!");
+	 * 	}
+	 * }
+	 * ```
+	 *
 	 * @param context The tag to use
+	 * @param contextConfiguration Configurator for this contextual logger
 	 */
-	public ForContext(context: LoggerContext) {
+	public ForContext(
+		context: LoggerContext,
+		contextConfiguration?: (configuration: Omit<LogConfiguration, "Create">) => void,
+	) {
+		const copy = this.Copy();
+
 		let sourceContext: string;
 		if (typeIs(context, "Instance")) {
 			sourceContext = context.GetFullName();
@@ -186,23 +206,32 @@ export class Logger {
 			sourceContext = tostring(context);
 		}
 
-		return this.Copy().EnrichWithProperty("SourceContext", sourceContext).Create();
+		contextConfiguration?.(copy);
+		return copy.EnrichWithProperty("SourceContext", sourceContext).Create();
 	}
 
 	/**
 	 * Creates a logger that enriches log events with the `SourceContext` as the containing script
+	 * @param scriptContextConfiguration The configuration for this contextual logger
 	 */
-	public ForScript() {
+	public ForScript(scriptContextConfiguration?: (configuration: Omit<LogConfiguration, "Create">) => void) {
 		const [s] = debug.info(2, "s");
-		return this.Copy().EnrichWithProperty("SourceContext", s).Create();
+		const copy = this.Copy();
+		scriptContextConfiguration?.(copy);
+		return copy.EnrichWithProperty("SourceContext", s).Create();
 	}
 
 	/**
 	 * Creates a logger that enriches log events with `SourceContext` as the specified function
 	 */
-	public ForFunction(func: () => void) {
+	public ForFunction(
+		func: () => void,
+		funcContextConfiguration?: (configuration: Omit<LogConfiguration, "Create">) => void,
+	) {
 		const [n] = debug.info(func, "n");
-		return this.Copy().EnrichWithProperty("SourceContext", n ?? "<anonymous>");
+		const copy = this.Copy();
+		funcContextConfiguration?.(copy);
+		return copy.EnrichWithProperty("SourceContext", n ?? "<anonymous>");
 	}
 
 	/**

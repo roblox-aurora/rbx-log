@@ -30,7 +30,7 @@ namespace Log {
 	 * @param args
 	 */
 	export function Fatal(template: string, ...args: unknown[]) {
-		defaultLogger.Fatal(template, ...args);
+		return defaultLogger.Fatal(template, ...args);
 	}
 
 	/**
@@ -75,7 +75,7 @@ namespace Log {
 	 * @param args
 	 */
 	export function Error(template: string, ...args: unknown[]) {
-		defaultLogger.Error(template, ...args);
+		return defaultLogger.Error(template, ...args);
 	}
 
 	/**
