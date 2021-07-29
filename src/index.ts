@@ -1,3 +1,4 @@
+import { LogConfiguration } from "./Configuration";
 import { LogEventRobloxOutputSink, RobloxOutputOptions } from "./Core/LogEventRobloxOutputSink";
 import { Logger, LoggerContext } from "./Logger";
 export { Logger } from "./Logger";
@@ -82,8 +83,11 @@ namespace Log {
 	 * Creates a logger that enriches log events with the specified context as the property `SourceContext`.
 	 * @param context The tag to use
 	 */
-	export function ForContext(context: LoggerContext) {
-		return defaultLogger.ForContext(context);
+	export function ForContext(
+		context: LoggerContext,
+		contextConfiguration?: (configuration: Omit<LogConfiguration, "Create">) => void,
+	) {
+		return defaultLogger.ForContext(context, contextConfiguration);
 	}
 
 	/**
@@ -98,17 +102,22 @@ namespace Log {
 	/**
 	 * Creates a logger that enriches log events with the `SourceContext` as the containing script
 	 */
-	export function ForScript() {
+	export function ForScript(scriptContextConfiguration?: (configuration: Omit<LogConfiguration, "Create">) => void) {
 		// Unfortunately have to duplicate here, since `debug.info`.
 		const [s] = debug.info(2, "s");
-		return defaultLogger.Copy().EnrichWithProperty("SourceContext", s).Create();
+		const copy = defaultLogger.Copy();
+		scriptContextConfiguration?.(copy);
+		return copy.EnrichWithProperty("SourceContext", s).Create();
 	}
 
 	/**
 	 * Creates a logger that enriches log events with `SourceContext` as the specified function
 	 */
-	export function ForFunction(func: () => void) {
-		return defaultLogger.ForFunction(func);
+	export function ForFunction(
+		func: () => void,
+		funcContextConfiguration?: (configuration: Omit<LogConfiguration, "Create">) => void,
+	) {
+		return defaultLogger.ForFunction(func, funcContextConfiguration);
 	}
 }
 export default Log;
