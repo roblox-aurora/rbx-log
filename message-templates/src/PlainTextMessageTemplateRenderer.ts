@@ -1,21 +1,15 @@
 import { DestructureMode, PropertyToken, TextToken } from "MessageTemplateToken";
+import { RbxSerializer } from "RbxSerializer";
 import { MessageTemplateRenderer } from "./MessageTemplateRenderer";
 const HttpService = game.GetService("HttpService");
 
 export class PlainTextMessageTemplateRenderer extends MessageTemplateRenderer {
 	protected RenderPropertyToken(propertyToken: PropertyToken, value: unknown): string {
-		if (propertyToken.destructureMode === DestructureMode.ToString) {
-			return tostring(value);
-		} else if (propertyToken.destructureMode === DestructureMode.Destructure) {
-			return HttpService.JSONEncode(value);
+		const serialized = RbxSerializer.Serialize(value, propertyToken.destructureMode);
+		if (typeIs(serialized, "table")) {
+			return HttpService.JSONEncode(serialized);
 		} else {
-			if (typeIs(value, "Instance")) {
-				return value.GetFullName();
-			} else if (typeIs(value, "table")) {
-				return HttpService.JSONEncode(value);
-			} else {
-				return tostring(value);
-			}
+			return tostring(serialized);
 		}
 	}
 	protected RenderTextToken(textToken: TextToken): string {
