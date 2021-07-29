@@ -1,8 +1,9 @@
 export interface LogEvent {
 	readonly Level: LogLevel;
 	readonly Timestamp: string;
+	readonly SourceContext: string | undefined;
 	readonly Template: string;
-	[name: string]: defined;
+	readonly [name: string]: unknown;
 }
 export enum LogLevel {
 	Verbose,

@@ -1,4 +1,4 @@
-import { DestructureMode } from "@rbxts/message-templates/out/MessageTemplateToken";
+import { DestructureMode } from "./MessageTemplateToken";
 
 /**
  * Handles serialization of Roblox objects for use in event data
