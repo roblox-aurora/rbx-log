@@ -2,7 +2,7 @@ import { PropertyToken, TemplateTokenKind, TextToken, Token } from "MessageTempl
 
 export abstract class MessageTemplateRenderer {
 	public constructor(private tokens: Token[]) {}
-	public Render(properties: Record<string, defined>): string {
+	public Render(properties: Record<string, unknown>): string {
 		let result = "";
 		for (const token of this.tokens) {
 			switch (token.kind) {
