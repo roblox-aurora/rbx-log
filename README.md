@@ -66,3 +66,8 @@ Of course, this data can be logged to the roblox console or another supported co
     );
     ```
 - A global `Log` object, with the ability to create individual `Logger` objects.
+
+## Supported Sinks
+| Sink Name | Via | Information |
+|--------|-------------|----------|
+| [Zircon](https://github.com/roblox-aurora/zircon) | `Zircon.Log.Console()` | Runtime Debugging Console for Roblox |
