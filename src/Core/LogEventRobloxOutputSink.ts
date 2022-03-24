@@ -15,11 +15,17 @@ export interface RobloxOutputOptions {
 	 * Use this if you use the `throw Log.Error(...)` or `throw Log.Fatal(...)` patterns.
 	 */
 	ErrorsTreatedAsExceptions?: boolean;
+
+	/**
+	 * A prefix to add to each output message before the severity tag e.g. `EXAMPLE` will become `[EXAMPLE] [INF]: Example!`
+	 */
+	Prefix?: string;
 }
+
 export class LogEventRobloxOutputSink implements ILogEventSink {
 	public constructor(private options: RobloxOutputOptions) {}
 	Emit(message: LogEvent): void {
-		const { TagFormat = "short", ErrorsTreatedAsExceptions } = this.options;
+		const { TagFormat = "short", ErrorsTreatedAsExceptions, Prefix } = this.options;
 
 		if (message.Level >= LogLevel.Error && ErrorsTreatedAsExceptions) {
 			return;
@@ -50,7 +56,8 @@ export class LogEventRobloxOutputSink implements ILogEventSink {
 		}
 
 		const messageRendered = template.Render(message);
-		const formattedMessage = `[${tag}] ${messageRendered}`;
+		const formattedMessage =
+			Prefix !== undefined ? `[${Prefix}] [${tag}] ${messageRendered}` : `[${tag}] ${messageRendered}`;
 
 		if (message.Level >= LogLevel.Warning) {
 			warn(formattedMessage);

@@ -28,3 +28,5 @@ export interface ILogEventEnricher {
 export interface ILogEventSink {
 	Emit(message: LogEvent): void;
 }
+
+export type ConfigureOnly<T> = T extends ILogEventEnricher ? Omit<T, "Enrich"> : T;

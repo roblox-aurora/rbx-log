@@ -1,3 +1,4 @@
+import { UserDefinedLogProperties } from "./Core/TypeUtils";
 import { LogConfiguration } from "./Configuration";
 import { LogEventRobloxOutputSink, RobloxOutputOptions } from "./Core/LogEventRobloxOutputSink";
 import { Logger, LoggerContext } from "./Logger";
@@ -23,6 +24,10 @@ namespace Log {
 		return Logger.configure();
 	}
 
+	/**
+	 * The default roblox output sink
+	 * @param options Options for the sink
+	 */
 	export const RobloxOutput = (options: RobloxOutputOptions = {}) => new LogEventRobloxOutputSink(options);
 
 	/**
@@ -95,8 +100,16 @@ namespace Log {
 	 * @param name The name of the property
 	 * @param value The value of the property
 	 */
-	export function ForProperty(name: string, value: defined) {
+	export function ForProperty<K extends keyof UserDefinedLogProperties>(name: K, value: UserDefinedLogProperties[K]) {
 		return defaultLogger.ForProperty(name, value);
+	}
+
+	/**
+	 * Creates a logger that enriches log events with the specified properties
+	 * @param props The properties
+	 */
+	export function ForProperties<TProps extends UserDefinedLogProperties>(props: TProps) {
+		return defaultLogger.ForProperties(props);
 	}
 
 	/**
@@ -107,7 +120,12 @@ namespace Log {
 		const [s] = debug.info(2, "s");
 		const copy = defaultLogger.Copy();
 		scriptContextConfiguration?.(copy);
-		return copy.EnrichWithProperty("SourceContext", s).Create();
+		return copy
+			.EnrichWithProperties({
+				SourceContext: s,
+				SourceKind: "Script",
+			})
+			.Create();
 	}
 
 	/**

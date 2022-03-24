@@ -1,5 +1,5 @@
 import { ILogEventPropertyEnricher, LogEventPropertyEnricher } from "./Core/LogEventPropertyEnricher";
-import { LogEventSinkCallback, LogLevel, ILogEventEnricher, ILogEventSink } from "./Core";
+import { LogEventSinkCallback, LogLevel, ILogEventEnricher, ILogEventSink, ConfigureOnly } from "./Core";
 import { Logger } from "./Logger";
 import { ILogEventCallbackSink, LogEventCallbackSink } from "./Core/LogEventCallbackSink";
 const RunService = game.GetService("RunService");
@@ -52,9 +52,25 @@ export class LogConfiguration {
 	public EnrichWithProperty<V extends defined>(
 		propertyName: string,
 		value: V,
-		configure?: (enricher: ILogEventPropertyEnricher) => void,
+		configure?: (enricher: ConfigureOnly<LogEventPropertyEnricher<any>>) => void,
 	) {
-		const enricher = new LogEventPropertyEnricher(propertyName, value);
+		return this.EnrichWithProperties(
+			{
+				[propertyName]: value,
+			},
+			configure,
+		);
+	}
+
+	/**
+	 * Adds static property values to each message
+	 * @param props The properties to add to this logger
+	 */
+	public EnrichWithProperties<TProps extends { [P in string]: defined }>(
+		props: TProps,
+		configure?: (enricher: ConfigureOnly<LogEventPropertyEnricher<TProps>>) => void,
+	) {
+		const enricher = new LogEventPropertyEnricher(props);
 		configure?.(enricher);
 		this.enrichers.push(enricher);
 		return this;

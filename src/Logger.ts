@@ -4,6 +4,7 @@ import { LogLevel, ILogEventEnricher, ILogEventSink, LogEvent } from "./Core";
 import { LogConfiguration } from "./Configuration";
 import { PlainTextMessageTemplateRenderer } from "@rbxts/message-templates";
 import { RbxSerializer } from "@rbxts/message-templates/out/RbxSerializer";
+import { EnforceUserKey, UserDefinedLogProperties } from "./Core/TypeUtils";
 
 export class Logger {
 	private sinks: ReadonlyArray<ILogEventSink>;
@@ -219,7 +220,12 @@ export class Logger {
 		}
 
 		contextConfiguration?.(copy);
-		return copy.EnrichWithProperty("SourceContext", sourceContext).Create();
+		return copy
+			.EnrichWithProperties({
+				SourceContext: sourceContext,
+				SourceKind: "Context",
+			})
+			.Create();
 	}
 
 	/**
@@ -230,7 +236,12 @@ export class Logger {
 		const [s] = debug.info(2, "s");
 		const copy = this.Copy();
 		scriptContextConfiguration?.(copy);
-		return copy.EnrichWithProperty("SourceContext", s).Create();
+		return copy
+			.EnrichWithProperties({
+				SourceContext: s,
+				SourceKind: "Script",
+			})
+			.Create();
 	}
 
 	/**
@@ -240,19 +251,34 @@ export class Logger {
 		func: () => void,
 		funcContextConfiguration?: (configuration: Omit<LogConfiguration, "Create">) => void,
 	) {
-		const [n] = debug.info(func, "n");
+		const [funcName, funcLine, funcSource] = debug.info(func, "nls");
 		const copy = this.Copy();
 		funcContextConfiguration?.(copy);
-		return copy.EnrichWithProperty("SourceContext", n ?? "<anonymous>");
+		return copy
+			.EnrichWithProperties({
+				SourceContext: `function '${funcName ?? "(anonymous)"}'`,
+				SourceLine: funcLine,
+				SourceFile: funcSource,
+				SourceKind: "Function",
+			})
+			.Create();
 	}
 
 	/**
-	 * Creates a logger that nriches log events with the specified property
+	 * Creates a logger that enriches log events with the specified property
 	 * @param name The name of the property
 	 * @param value The value of the property
 	 */
-	public ForProperty(name: string, value: defined) {
+	public ForProperty<K extends keyof UserDefinedLogProperties>(name: K, value: UserDefinedLogProperties[K]) {
 		return this.Copy().EnrichWithProperty(name, value).Create();
+	}
+
+	/**
+	 * Creates a logger that enriches log events with the specified properties
+	 * @param props The properties
+	 */
+	public ForProperties<TProps extends UserDefinedLogProperties>(props: TProps) {
+		return this.Copy().EnrichWithProperties(props).Create();
 	}
 }
 

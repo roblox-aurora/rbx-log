@@ -34,6 +34,3 @@ type Values<T extends string[]> = {
 type DebugInfoResult<T extends DebugInfoString> = Values<Split<T, "">>;
 
 // eslint-disable-next-line roblox-ts/no-namespace-merging
-declare namespace debug {
-	function info<A extends DebugInfoString>(funLevel: number | (() => void), value: A): LuaTuple<DebugInfoResult<A>>;
-}
