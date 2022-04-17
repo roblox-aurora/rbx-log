@@ -51,7 +51,7 @@ var copy = util_1.default.promisify(copy_1.default);
 function build(argv) {
     var _a;
     return __awaiter(this, void 0, void 0, function () {
-        var rootPath, luauPath, luauDistPath, luauOutputPath, luauArtefactPath, config, configuration, packageJson, projectPath, result, copyCallback, _i, _b, packageName;
+        var rootPath, luauPath, luauDistPath, luauOutputPath, luauArtefactPath, config, configuration, packageJson, projectPath, result, copyCallback, libPath, _i, _b, packageName;
         return __generator(this, function (_c) {
             switch (_c.label) {
                 case 0:
@@ -95,13 +95,14 @@ function build(argv) {
                         };
                     };
                     console.log("copying output files...");
-                    return [4 /*yield*/, copy(path_1.default.join(rootPath, configuration.build.outDir) + "/**/*.lua", path_1.default.join(luauOutputPath, "dist"))];
+                    libPath = path_1.default.join(luauOutputPath, "lib");
+                    return [4 /*yield*/, copy(path_1.default.join(rootPath, configuration.build.outDir) + "/**/*.lua", libPath)];
                 case 2:
                     _c.sent();
                     return [4 /*yield*/, copy(luauDistPath + "/*.*", luauOutputPath)];
                 case 3:
                     _c.sent();
-                    return [4 /*yield*/, copy(rootPath + "/include/*.lua", path_1.default.join(luauOutputPath, "dist", "TS"))];
+                    return [4 /*yield*/, copy(rootPath + "/include/*.lua", path_1.default.join(libPath, "TS"))];
                 case 4:
                     _c.sent();
                     _i = 0, _b = Object.entries(packageJson.dependencies);
@@ -109,7 +110,7 @@ function build(argv) {
                 case 5:
                     if (!(_i < _b.length)) return [3 /*break*/, 8];
                     packageName = _b[_i][0];
-                    return [4 /*yield*/, copy(rootPath + "/node_modules/" + packageName + "/**/*.lua", path_1.default.join(luauOutputPath, "dist", "TS", packageName))];
+                    return [4 /*yield*/, copy(rootPath + "/node_modules/" + packageName + "/**/*.lua", path_1.default.join(libPath, "TS", packageName))];
                 case 6:
                     _c.sent();
                     _c.label = 7;

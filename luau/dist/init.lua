@@ -74,8 +74,8 @@ export type Log = LogNamespace;
 
 local Log = {} :: Log
 
-local LogCore = require(script.dist)
-local LogLevel = require(script.dist.Core).LogLevel
+local LogCore = require(script.lib)
+local LogLevel = require(script.lib.Core).LogLevel
 
 for k, v in pairs(LogCore) do
     Log[k] = v
