@@ -122,6 +122,7 @@ function build(argv) {
                     execa_1.default.commandSync("wally package --project-path " + luauOutputPath + " --output " + path_1.default.join(luauArtefactPath, configuration.wally.packageName + "-luau.zip"));
                     execa_1.default.commandSync("rojo build " + projectPath + " --output " + path_1.default.join(luauArtefactPath, configuration.wally.packageName + "-luau.rbxm"));
                     if (argv.publish) {
+                        execa_1.default.commandSync("wally publish --project-path " + luauOutputPath);
                     }
                     return [2 /*return*/];
             }

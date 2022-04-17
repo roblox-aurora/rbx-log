@@ -5,4 +5,4 @@ realm = "shared"
 license = "MIT"
 registry = "https://github.com/upliftgames/wally-index"
 authors = [ "vorlias" ]
-version = "0.6.1"
+version = "0.6.2"

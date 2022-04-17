@@ -74,7 +74,7 @@ export type Log = LogNamespace;
 
 local Log = {} :: Log
 
-local LogCore = require(script.lib)
+local LogCore = require(script.lib).default -- default in roblox-ts
 local LogLevel = require(script.lib.Core).LogLevel
 
 for k, v in pairs(LogCore) do
