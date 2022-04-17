@@ -1,0 +1,27 @@
+{
+  "name": "roblox-ts-luau",
+  "version": "1.0.0",
+  "description": "Tool that builds roblox-ts project into a Luau-compatible project",
+  "main": "out/cli.js",
+  "bin": {
+    "rbxts-luau": "out/cli.js"
+  },
+  "scripts": {
+    "build": "tsc",
+    "run": "tsc && node out/cli.js"
+  },
+  "keywords": [],
+  "author": "Vorlias",
+  "license": "MIT",
+  "dependencies": {
+    "@iarna/toml": "^2.2.5",
+    "@roblox-ts/rojo-resolver": "^1.0.2",
+    "@types/hjson": "^2.4.3",
+    "copy": "^0.3.2",
+    "execa": "^5.1.1",
+    "fs-extra": "^10.1.0",
+    "hjson": "^3.2.2",
+    "prompts": "^2.4.2"
+  },
+  "yalcSig": "7913642615b01fb65329e5ebf3e9bc8e"
+}

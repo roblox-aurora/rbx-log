@@ -1,0 +1,12 @@
+{
+  "name": "log",
+  "tree": {
+    "$path": "../out",
+    "TS": {
+      "$path": "../include",
+      "node_modules": {
+        "$path": "../node_modules/@rbxts"
+      }
+    }
+  }
+}

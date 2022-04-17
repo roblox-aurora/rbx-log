@@ -1,11 +1,13 @@
 {
   "name": "@rbxts/log",
   "version": "0.6.0-beta.0",
-  "description": "",
+  "description": "Structured logging library for Roblox",
   "main": "out/init.lua",
   "scripts": {
+    "build": "rbxtsc",
     "prepare": "npm run build:templates && rbxtsc",
     "build:example": "cross-env NODE_ENV=development rbxtsc-dev --type=game -p ./example -i ./include",
+    "build:luau": "rbxts-luau build",
     "watch:example": "cross-env NODE_ENV=development TYPE=TestTS rbxtsc-dev -w --type=game -p ./example -i ./include",
     "serve:example": "rojo serve ./example/default.project.json --port 34567",
     "dev:example": "concurrently npm:watch:example npm:serve:example",
@@ -44,6 +46,7 @@
     "eslint-plugin-prettier": "^3.4.0",
     "eslint-plugin-roblox-ts": "0.0.27",
     "prettier": "^2.3.1",
+    "roblox-ts-luau": "file:.yalc/roblox-ts-luau",
     "typescript": "^4.3.4"
   }
 }

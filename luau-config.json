@@ -1,0 +1,16 @@
+{
+	"wally": {
+		"username": "vorlias",
+		"packageName": "log",
+		"license": "MIT",
+		"registry": "https://github.com/upliftgames/wally-index",
+		"authors": [
+			"vorlias"
+		],
+		"realm": "shared",
+		"description": "Structured logging library for Roblox"
+	},
+	"build": {
+		"outDir": "out"
+	}
+}

@@ -1,7 +1,13 @@
 /**/node_modules
-/**/out
+/out
 /**/include
 *.tsbuildinfo
 temp
 /example/build
 *.tgz
+
+/message-templates/out
+
+# Luau
+/luau/artefacts
+/luau/out

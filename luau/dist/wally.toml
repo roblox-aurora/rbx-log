@@ -1,0 +1,8 @@
+[package]
+name = "vorlias/log"
+description = "Structured logging library for Roblox"
+realm = "shared"
+license = "MIT"
+registry = "https://github.com/upliftgames/wally-index"
+authors = [ "vorlias" ]
+version = "0.6.0-beta.0"
