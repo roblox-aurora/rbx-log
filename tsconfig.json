@@ -11,6 +11,7 @@
 		"noLib": true,
 		"resolveJsonModule": true,
 		"strict": true,
+		"stripInternal": true,
 		"target": "ESNext",
 		"typeRoots": ["node_modules/@rbxts"],
 

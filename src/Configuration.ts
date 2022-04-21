@@ -86,9 +86,9 @@ export class LogConfiguration {
 	}
 
 	public Create() {
-		this.logger._setSinks(this.sinks);
-		this.logger._setEnrichers(this.enrichers);
-		this.logger._setMinLogLevel(this.logLevel);
+		this.logger.SetSinks(this.sinks);
+		this.logger.SetEnrichers(this.enrichers);
+		this.logger.SetMinLogLevel(this.logLevel);
 		return this.logger;
 	}
 }

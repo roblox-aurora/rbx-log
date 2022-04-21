@@ -2,6 +2,7 @@ import { UserDefinedLogProperties } from "./Core/TypeUtils";
 import { LogConfiguration } from "./Configuration";
 import { LogEventRobloxOutputSink, RobloxOutputOptions } from "./Core/LogEventRobloxOutputSink";
 import { Logger, LoggerContext } from "./Logger";
+import { LogLevel } from "./Core";
 export { Logger } from "./Logger";
 export { LogLevel, LogEvent } from "./Core";
 
@@ -17,12 +18,18 @@ namespace Log {
 	}
 
 	/**
-	 * Creates a custom logger
-	 * @returns The logger configuration, use `Initialize` to get the logger once configured
+	 * Configure a custom logger
 	 */
-	export function Create() {
+	export function Configure() {
 		return Logger.configure();
 	}
+
+	/**
+	 * Creates a custom logger
+	 * @returns The logger configuration, use `Initialize` to get the logger once configured
+	 * @deprecated Use {@link Configure}. This will be removed in future.
+	 */
+	export const Create = Configure;
 
 	/**
 	 * The default roblox output sink
@@ -126,6 +133,13 @@ namespace Log {
 				SourceKind: "Script",
 			})
 			.Create();
+	}
+
+	/**
+	 * Set the minimum log level for the default logger
+	 */
+	export function SetMinLogLevel(logLevel: LogLevel) {
+		defaultLogger.SetMinLogLevel(logLevel);
 	}
 
 	/**

@@ -21,16 +21,19 @@ export class Logger {
 	}
 
 	/** @internal */
-	public _setSinks(sinks: ReadonlyArray<ILogEventSink>) {
+	public SetSinks(sinks: ReadonlyArray<ILogEventSink>) {
 		this.sinks = sinks;
 	}
 
-	public _setEnrichers(enrichers: ReadonlyArray<ILogEventEnricher>) {
+	/** @internal */
+	public SetEnrichers(enrichers: ReadonlyArray<ILogEventEnricher>) {
 		this.enrichers = enrichers;
 	}
 
-	/** @internal */
-	public _setMinLogLevel(logLevel: LogLevel) {
+	/**
+	 * Set the minimum log level for this logger
+	 */
+	public SetMinLogLevel(logLevel: LogLevel) {
 		this.logLevel = logLevel;
 	}
 

@@ -1,6 +1,6 @@
 {
   "name": "@rbxts/log",
-  "version": "0.6.2",
+  "version": "0.6.3",
   "description": "Structured logging library for Roblox",
   "main": "out/init.lua",
   "scripts": {
