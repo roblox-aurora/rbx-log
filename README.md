@@ -70,4 +70,5 @@ Of course, this data can be logged to the roblox console or another supported co
 ## Supported Sinks
 | Sink Name | Via | Information |
 |--------|-------------|----------|
+| Roblox Output | `Log.RobloxOutput()` | Built in sink which will write to the output + dev console |
 | [Zircon](https://github.com/roblox-aurora/zircon) | `Zircon.Log.Console()` | Runtime Debugging Console for Roblox |
