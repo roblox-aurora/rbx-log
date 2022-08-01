@@ -72,3 +72,34 @@ Of course, this data can be logged to the roblox console or another supported co
 |--------|-------------|----------|
 | Roblox Output | `Log.RobloxOutput()` | Built in sink which will write to the output + dev console |
 | [Zircon](https://github.com/roblox-aurora/zircon) | `Zircon.Log.Console()` | Runtime Debugging Console for Roblox |
+
+## Use with [Flamework](https://fireboltofdeath.dev/docs)
+Flamework is a very useful dependency injection transformer for roblox-ts, in which we can use `@rbxts/log` quite extensively like you would with regular DI.
+
+
+A simple approach to the DI logging is to just use `ForContext` - however, this is a bit more work and more explicit.
+```ts
+@Service()
+export class MyService {
+    public readonly logger = Log.ForContext(MyService);
+}
+```
+
+
+Instead, we can use the [dependency resolution](https://fireboltofdeath.dev/docs/flamework/modding/guides/dependency-resolution) feature of Flamework so that we can just refer to the `Logger` object from the constructor :-
+
+(e.g. in `index.server.ts` & `index.client.ts`)
+```ts
+import Log, { Logger } from "@rbxts/log";
+Modding.registerDependency<Logger>((ctor) => {
+    return Log.ForContext(ctor); // will register this under the given DI class
+});
+```
+
+Then in our above example:
+```ts
+@Service()
+export class MyService {
+    public constructor(private readonly logger: Logger) {}
+}
+```
