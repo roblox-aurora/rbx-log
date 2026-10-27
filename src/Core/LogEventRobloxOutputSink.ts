@@ -1,5 +1,6 @@
 import { MessageTemplateParser, PlainTextMessageTemplateRenderer } from "@rbxts/message-templates";
 import { ILogEventSink, LogEvent, LogLevel } from "../Core";
+const logService = game.GetService("LogService");
 
 export interface RobloxOutputOptions {
 	/**
@@ -59,10 +60,25 @@ export class LogEventRobloxOutputSink implements ILogEventSink {
 		const formattedMessage =
 			Prefix !== undefined ? `[${Prefix}] [${tag}] ${messageRendered}` : `[${tag}] ${messageRendered}`;
 
-		if (message.Level >= LogLevel.Warning) {
-			warn(formattedMessage);
-		} else {
-			print(formattedMessage);
+		switch (message.Level) {
+			case LogLevel.Verbose:
+				logService.Output(formattedMessage);
+				break;
+			case LogLevel.Debugging:
+				logService.Output(formattedMessage);
+				break;
+			case LogLevel.Information:
+				logService.Info(formattedMessage);
+				break;
+			case LogLevel.Warning:
+				logService.Warn(formattedMessage);
+				break;
+			case LogLevel.Error:
+				logService.Error(formattedMessage);
+				break;
+			case LogLevel.Fatal:
+				logService.Error(formattedMessage);
+				break;
 		}
 	}
 }

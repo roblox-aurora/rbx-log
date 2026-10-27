@@ -1,6 +1,6 @@
 {
   "name": "@rbxts/log",
-  "version": "0.6.4",
+  "version": "0.7.0",
   "description": "Structured logging library for Roblox",
   "main": "out/init.lua",
   "scripts": {
@@ -36,18 +36,19 @@
     "@rbxts/message-templates": "^0.3.1"
   },
   "devDependencies": {
-    "@rbxts/compiler-types": "^1.1.1-types.3",
-    "@rbxts/types": "^1.0.568",
-    "@typescript-eslint/eslint-plugin": "^4.28.0",
-    "@typescript-eslint/parser": "^4.28.0",
+    "@rbxts/compiler-types": "^3.0.0-types.0",
+    "@rbxts/types": "^1.0.960",
+    "@typescript-eslint/eslint-plugin": "^8.72.1",
+    "@typescript-eslint/parser": "^8.72.1",
     "concurrently": "^6.2.0",
     "cross-env": "^7.0.3",
-    "eslint": "^7.29.0",
-    "eslint-config-prettier": "^8.3.0",
-    "eslint-plugin-prettier": "^3.4.0",
-    "eslint-plugin-roblox-ts": "0.0.27",
-    "prettier": "^2.3.1",
+	  "eslint": "^10.10.0",
+		"eslint-config-prettier": "^10.1.8",
+		"eslint-plugin-prettier": "^5.5.6",
+    "eslint-plugin-roblox-ts": "^1.4.1",
+		"prettier": "^3.9.9",
+    "roblox-ts": "^3.0.0",
     "roblox-ts-luau": "file:.yalc/roblox-ts-luau",
-    "typescript": "^4.3.4"
+		"typescript": "=5.9.3"
   }
 }
